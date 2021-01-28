@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.express as px
 
 #Título
-st.title("Mi primer app de streamlit")
+st.title("Mi primer app de streamlit editada")
 
 #Para ejecutar, desde la consola escribimos: streamlit run nombrearhivo.py
 
