@@ -43,6 +43,6 @@ filtered_df = df[(df['Region'] == region_filter) & (df['State'] == state_filter)
 # Muestra el resultado (solo la primera fila si hay resultados)
 if not filtered_df.empty:
     st.write("Resultado:")
-    st.dataframe(filtered_df.head(1)) # Muestra la primera fila del dataframe filtrado
+    st.dataframe(filtered_df) # Muestra la primera fila del dataframe filtrado
 else:
     st.write("No se encontraron datos que coincidan con los filtros seleccionados.")
