@@ -39,7 +39,9 @@ with st.sidebar:
 
 # Aplica los filtros
 filtered_df = df[(df['Region'] == region_filter) & (df['State'] == state_filter)]
-
+# Gráfica de pastel
+fig = px.pie(filtered_df, names='Category', title='Distribución por Categoría')
+st.plotly_chart(fig)
 # Muestra el resultado (solo la primera fila si hay resultados)
 if not filtered_df.empty:
     st.write("Resultado:")
