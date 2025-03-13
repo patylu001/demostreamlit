@@ -31,3 +31,13 @@ except FileNotFoundError:
     st.error("Error: El archivo 'SalidaFinal.xlsx' no se encuentra.")
 except Exception as e:
     st.error(f"Error al leer el archivo o generar la gráfica: {e}")
+
+# Crear un filtro de selección basado en la columna 'region'
+region_seleccionada = st.selectbox('Selecciona una región', df['Region'].unique())
+
+# Filtrar el dataframe basado en la selección
+df_filtrado = df[df['Region'] == region_seleccionada]
+
+# Mostrar el dataframe filtrado
+st.write('Dataframe filtrado por región:', region_seleccionada)
+st.dataframe(df_filtrado)
