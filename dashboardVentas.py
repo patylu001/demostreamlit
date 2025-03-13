@@ -32,12 +32,17 @@ except FileNotFoundError:
 except Exception as e:
     st.error(f"Error al leer el archivo o generar la gráfica: {e}")
 with st.sidebar:
-  # Crear un filtro de selección basado en la columna 'region'
-  region_seleccionada = st.selectbox('Selecciona una región', df['Region'].unique())
+  # Filtros
+  region_filter = st.selectbox("Selecciona una región:", df['Region'].unique())
+  state_filter = st.selectbox("Selecciona un estado:", df['State'].unique())
 
-  # Filtrar el dataframe basado en la selección
-df_filtrado = df[df['Region'] == region_seleccionada]
 
-# Mostrar el dataframe filtrado
-st.write('Dataframe filtrado por región:', region_seleccionada)
-st.dataframe(df_filtrado)
+# Aplica los filtros
+filtered_df = df[(df['Region'] == region_filter) & (df['State'] == state_filter)]
+
+# Muestra el resultado (solo la primera fila si hay resultados)
+if not filtered_df.empty:
+    st.write("Resultado:")
+    st.dataframe(filtered_df.head(1)) # Muestra la primera fila del dataframe filtrado
+else:
+    st.write("No se encontraron datos que coincidan con los filtros seleccionados.")
