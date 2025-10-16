@@ -32,20 +32,28 @@ def plot_top_profitable_products(df):
 def main():
     st.title("Product Analysis Dashboard")
 
-    file_path = 'SalidaFinal.xlsx'
+    file_path = '/content/drive/MyDrive/Herramientas Datos 2025/SalidaFinal.xlsx'
     df = load_data(file_path)
 
-    st.write("## Data Preview")
-    st.dataframe(df.head())
-
-    # Add Region Filter
+    # Add Region Filter to Sidebar
+    st.sidebar.header("Filtro por Región")
     regions = ['Todas'] + list(df['Region'].unique())
-    selected_region = st.selectbox("Selecciona una Región", regions)
+    selected_region = st.sidebar.selectbox("Selecciona una Región", regions)
 
     if selected_region != 'Todas':
         filtered_df = df[df['Region'] == selected_region]
     else:
         filtered_df = df.copy()
+
+    # Add Checkbox to Sidebar to show/hide DataFrame
+    st.sidebar.header("Mostrar Datos")
+    show_dataframe = st.sidebar.checkbox("Mostrar DataFrame Filtrado")
+
+    # Display filtered DataFrame if checkbox is checked
+    if show_dataframe:
+        st.write("## Data Preview (Filtered)")
+        st.dataframe(filtered_df.head())
+
 
     st.write("## Top 5 Selling Products")
     sales_fig = plot_top_selling_products(filtered_df)
