@@ -32,18 +32,27 @@ def plot_top_profitable_products(df):
 def main():
     st.title("Product Analysis Dashboard")
 
-    file_path = "SalidaFinal.xlsx"
+    file_path = 'SalidaFinal.xlsx'
     df = load_data(file_path)
 
     st.write("## Data Preview")
     st.dataframe(df.head())
 
+    # Add Region Filter
+    regions = ['Todas'] + list(df['Region'].unique())
+    selected_region = st.selectbox("Selecciona una Región", regions)
+
+    if selected_region != 'Todas':
+        filtered_df = df[df['Region'] == selected_region]
+    else:
+        filtered_df = df.copy()
+
     st.write("## Top 5 Selling Products")
-    sales_fig = plot_top_selling_products(df)
+    sales_fig = plot_top_selling_products(filtered_df)
     st.plotly_chart(sales_fig)
 
     st.write("## Top 5 Most Profitable Products")
-    profit_fig = plot_top_profitable_products(df)
+    profit_fig = plot_top_profitable_products(filtered_df)
     st.plotly_chart(profit_fig)
 
 if __name__ == "__main__":
