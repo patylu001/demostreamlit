@@ -32,7 +32,7 @@ def plot_top_profitable_products(df):
 def main():
     st.title("Product Analysis Dashboard")
 
-    file_path = '/content/drive/MyDrive/Herramientas Datos 2025/SalidaFinal.xlsx'
+    file_path = 'SalidaFinal.xlsx'
     df = load_data(file_path)
 
     # Add Region Filter to Sidebar
