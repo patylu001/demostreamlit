@@ -63,5 +63,7 @@ def main():
     profit_fig = plot_top_profitable_products(filtered_df)
     st.plotly_chart(profit_fig)
 
+    st.write(filtered_df.dtypes)
+
 if __name__ == "__main__":
     main()
