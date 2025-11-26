@@ -8,7 +8,7 @@ with open(municipios_yucatan) as archivo:
     municipios_json = json.load(archivo)
 
 dfMunicipios = pd.read_csv("municipiosDatos.csv")
-
+st.dataframe(dfMunicipios)
 fig = px.choropleth(dfMunicipios, geojson=municipios_json, locations='Municipio',
                     color='RandomNumbers',
                     color_continuous_scale="Viridis",
