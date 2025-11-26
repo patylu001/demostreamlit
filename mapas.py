@@ -1,6 +1,6 @@
 import json 
 import pandas as pd
-import plotly.express as px
+import pydeck as pdk
 import streamlit  as st
 
 import pydeck as pdk
@@ -64,4 +64,5 @@ r = pdk.Deck(
 # Render the deck
 
 st.pydeck_chart(r)
+
 
