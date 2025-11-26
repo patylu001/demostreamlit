@@ -3,23 +3,65 @@ import pandas as pd
 import plotly.express as px
 import streamlit  as st
 
+import pydeck as pdk
+
 municipios_yucatan = "Yucatan.geojson"
 with open(municipios_yucatan) as archivo:
     municipios_json = json.load(archivo)
-
 dfMunicipios = pd.read_csv("municipiosDatos.csv")
 dfMunicipios.drop('Unnamed: 0',axis=1,inplace=True)
 st.dataframe(dfMunicipios)
-fig = px.choropleth(dfMunicipios, geojson=municipios_json, locations='Municipio',
-                    color='RandomNumbers',
-                    color_continuous_scale="Viridis",
-                    range_color=(0, 10000),
-                    featureidkey="properties.NOMGEO",
-                    labels={'RandomNumbers':'Votos'} )
-fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0},
-                  geo_center={"lat": 20.8, "lon": -89.0}, # Approximate center of Yucatan
-                  geo_scope="north america", # Limit the scope to North America
-                  geo_projection_scale=7 # Adjust zoom level as needed using the correct property
-                 )
 
-st.plotly_chart(fig, use_container_width=True)
+# Create a copy of the GeoJSON data to modify it
+enriched_municipios_json = json.loads(json.dumps(municipios_json))
+
+# Merge RandomNumbers from dfMunicipios into the GeoJSON properties
+for feature in enriched_municipios_json['features']:
+    municipio_name = feature['properties']['NOMGEO']
+    # Find the corresponding row in dfMunicipios
+    matching_row = dfMunicipios[dfMunicipios['Municipio'] == municipio_name]
+    if not matching_row.empty:
+        # Convert numpy.int64 to a standard Python int
+        random_number = int(matching_row['RandomNumbers'].iloc[0])
+        feature['properties']['RandomNumbers'] = random_number
+    else:
+        feature['properties']['RandomNumbers'] = 0 # Default value if no match found
+# Define the pydeck GeoJsonLayer
+geojson_layer = pdk.Layer(
+    "GeoJsonLayer",
+    enriched_municipios_json,
+    filled=True,
+    get_fill_color=[
+        "(properties.RandomNumbers / 1000) * 255", # Red component (scaled by value)
+        "(properties.RandomNumbers / 1000) * 255", # Green component
+        "255 - (properties.RandomNumbers / 1000) * 255", # Blue component (inverse scaled)
+        200 # Alpha transparency
+    ],
+    get_line_color=[0, 0, 0, 200],
+    get_line_width=1,
+    stroked=True,
+    opacity=0.8,
+    extruded=False,
+    auto_highlight=True,
+    pickable=True # Make polygons pickable for interactivity
+)
+
+# Set the initial view state for Yucatan
+view_state = pdk.ViewState(
+    latitude=20.8,
+    longitude=-89.0,
+    zoom=7,
+    pitch=0
+)
+
+# Create the pydeck Deck
+r = pdk.Deck(
+    layers=[geojson_layer],
+    initial_view_state=view_state,
+    tooltip={"text": "Municipio: {NOMGEO}\nRandomNumbers: {RandomNumbers}"}
+)
+
+# Render the deck
+
+st.pydeck_chart(r)
+
