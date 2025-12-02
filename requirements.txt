@@ -3,3 +3,4 @@ pandas
 plotly
 openpyxl
 pydeck
+streamlit_calendar
