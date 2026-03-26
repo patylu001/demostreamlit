@@ -86,22 +86,8 @@ else:
                        labels={'value': 'Monto', 'Order Date': 'Fecha del Pedido'})
     st.plotly_chart(fig_time, use_container_width=True)
 
-     st.markdown('---')
-
-    # --- Sales by State Map ---
-    st.subheader('Ventas por Estado (USA)')
-    sales_by_state = filtered_df.groupby('State')['Sales'].sum().reset_index()
-    fig_state = px.choropleth(sales_by_state, 
-                              locations='State', 
-                              locationmode='USA-states', 
-                              color='Sales',
-                              scope='usa',
-                              color_continuous_scale='Viridis',
-                              title='Ventas Totales por Estado en USA',
-                              labels={'Sales': 'Ventas Totales', 'State': 'Estado'})
-    fig_state.update_layout(geo_scope='usa') # Ensures the map is centered on USA
-    st.plotly_chart(fig_state, use_container_width=True)
     st.markdown('---')
+   
 
     # --- Sales by Region ---
     st.subheader('Ventas por Región')
@@ -119,3 +105,18 @@ else:
                           title='Top 10 Productos Más Vendidos',
                           labels={'Sales': 'Ventas Totales', 'Product Name': 'Nombre del Producto'})
     st.plotly_chart(fig_products, use_container_width=True)
+
+ # --- Sales by State Map ---
+    st.subheader('Ventas por Estado (USA)')
+    sales_by_state = filtered_df.groupby('State')['Sales'].sum().reset_index()
+    fig_state = px.choropleth(sales_by_state, 
+                              locations='State', 
+                              locationmode='USA-states', 
+                              color='Sales',
+                              scope='usa',
+                              color_continuous_scale='Viridis',
+                              title='Ventas Totales por Estado en USA',
+                              labels={'Sales': 'Ventas Totales', 'State': 'Estado'})
+    fig_state.update_layout(geo_scope='usa') # Ensures the map is centered on USA
+    st.plotly_chart(fig_state, use_container_width=True)
+    st.markdown('---')
