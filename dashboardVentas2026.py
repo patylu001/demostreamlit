@@ -1,0 +1,106 @@
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+
+st.set_page_config(layout='wide')
+
+st.title('Sales Dashboard')
+
+# Assuming df is already loaded in the Colab environment
+# To make this standalone, you might need to load the data here:
+file_path = 'datos/SalidaVentas.xlsx'
+df = pd.read_excel(file_path)
+
+# --- Data Cleaning and Preparation (if necessary, for the dashboard context) ---
+# Convert 'Order Date' to datetime for time series analysis
+df['Order Date'] = pd.to_datetime(df['Order Date'])
+
+# --- Sidebar for Filters ---
+st.sidebar.header('Filtros')
+
+# Region filter
+selected_regions = st.sidebar.multiselect(
+    'Selecciona la Región',
+    options=df['Region'].unique(),
+    default=df['Region'].unique()
+)
+
+# Category filter
+selected_categories = st.sidebar.multiselect(
+    'Selecciona la Categoría',
+    options=df['Category'].unique(),
+    default=df['Category'].unique()
+)
+
+# Date range filter
+min_date = df['Order Date'].min().date()
+max_date = df['Order Date'].max().date()
+date_range = st.sidebar.date_input(
+    'Selecciona el Rango de Fechas',
+    value=(min_date, max_date),
+    min_value=min_date,
+    max_value=max_date
+)
+
+# Ensure date_range has two dates before filtering
+if len(date_range) == 2:
+    start_date = pd.to_datetime(date_range[0])
+    end_date = pd.to_datetime(date_range[1])
+    filtered_df = df[
+        (df['Region'].isin(selected_regions)) &
+        (df['Category'].isin(selected_categories)) &
+        (df['Order Date'] >= start_date) &
+        (df['Order Date'] <= end_date)
+    ]
+else:
+    filtered_df = df[
+        (df['Region'].isin(selected_regions)) &
+        (df['Category'].isin(selected_categories))
+    ]
+
+# Display message if no data is available after filtering
+if filtered_df.empty:
+    st.warning('No hay datos disponibles para la selección actual de filtros.')
+else:
+    # --- Key Performance Indicators (KPIs) ---
+    total_sales = filtered_df['Sales'].sum()
+    total_profit = filtered_df['Profit'].sum()
+    total_quantity = filtered_df['Quantity'].sum()
+
+    st.subheader('Indicadores Clave de Desempeño (KPIs)')
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric(label='Ventas Totales', value=f'${total_sales:,.2f}')
+    with col2:
+        st.metric(label='Ganancia Total', value=f'${total_profit:,.2f}')
+    with col3:
+        st.metric(label='Cantidad Total de Productos', value=f'{total_quantity:,}')
+
+    st.markdown('---')
+
+    # --- Sales and Profit Over Time ---
+    st.subheader('Ventas y Ganancias a lo Largo del Tiempo')
+    sales_profit_over_time = filtered_df.groupby('Order Date')[['Sales', 'Profit']].sum().reset_index()
+    fig_time = px.line(sales_profit_over_time, x='Order Date', y=['Sales', 'Profit'],
+                       title='Ventas y Ganancias Diarias',
+                       labels={'value': 'Monto', 'Order Date': 'Fecha del Pedido'})
+    st.plotly_chart(fig_time, use_container_width=True)
+
+    st.markdown('---')
+
+    # --- Sales by Region ---
+    st.subheader('Ventas por Región')
+    sales_by_region = filtered_df.groupby('Region')['Sales'].sum().reset_index()
+    fig_region = px.bar(sales_by_region, x='Region', y='Sales', title='Ventas Totales por Región',
+                        labels={'Sales': 'Ventas Totales', 'Region': 'Región'}, color='Region')
+    st.plotly_chart(fig_region, use_container_width=True)
+
+    st.markdown('---')
+
+    # --- Top 10 Products by Sales ---
+    st.subheader('Top 10 Productos por Ventas')
+    top_products = filtered_df.groupby('Product Name')['Sales'].sum().nlargest(10).reset_index()
+    fig_products = px.bar(top_products, x='Sales', y='Product Name', orientation='h',
+                          title='Top 10 Productos Más Vendidos',
+                          labels={'Sales': 'Ventas Totales', 'Product Name': 'Nombre del Producto'})
+    st.plotly_chart(fig_products, use_container_width=True)
