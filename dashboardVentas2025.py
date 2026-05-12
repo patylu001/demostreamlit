@@ -52,7 +52,19 @@ def main():
     # Display filtered DataFrame if checkbox is checked
     if show_dataframe:
         st.write("## Data Preview (Filtered)")
-        st.dataframe(filtered_df.head())
+        
+        # Add search box
+        search_term = st.text_input("🔍 Buscar en el dataframe:", placeholder="Ingresa un término de búsqueda...")
+        
+        # Filter dataframe based on search term
+        if search_term:
+            # Search across all columns
+            mask = filtered_df.astype(str).apply(lambda x: x.str.contains(search_term, case=False, na=False)).any(axis=1)
+            searched_df = filtered_df[mask]
+            st.write(f"**Resultados encontrados: {len(searched_df)}**")
+            st.dataframe(searched_df)
+        else:
+            st.dataframe(filtered_df.head())
 
 
     st.write("## Top 5 Selling Products")
