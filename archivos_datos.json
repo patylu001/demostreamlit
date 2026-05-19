@@ -1,0 +1,79 @@
+{
+  "Contrato-Proveedor-2024": {
+    "archivero": 1,
+    "fila": 1,
+    "seccion": "A",
+    "descripcion": "Contrato anual con proveedor principal",
+    "fecha": "2024-03-15 10:30"
+  },
+  "Factura-ENE-001": {
+    "archivero": 1,
+    "fila": 1,
+    "seccion": "C",
+    "descripcion": "Factura enero 2024",
+    "fecha": "2024-01-10 09:00"
+  },
+  "Factura-ENE-002": {
+    "archivero": 1,
+    "fila": 1,
+    "seccion": "C",
+    "descripcion": "Factura enero 2024 - complemento",
+    "fecha": "2024-01-12 09:15"
+  },
+  "Póliza-Seguro-2024": {
+    "archivero": 1,
+    "fila": 3,
+    "seccion": "B",
+    "descripcion": "Póliza de seguro de responsabilidad civil",
+    "fecha": "2024-02-20 14:00"
+  },
+  "Nómina-FEB-2024": {
+    "archivero": 2,
+    "fila": 1,
+    "seccion": "A",
+    "descripcion": "Nómina febrero 2024",
+    "fecha": "2024-02-28 17:00"
+  },
+  "Nómina-MAR-2024": {
+    "archivero": 2,
+    "fila": 1,
+    "seccion": "B",
+    "descripcion": "Nómina marzo 2024",
+    "fecha": "2024-03-31 17:00"
+  },
+  "Acta-Constitutiva": {
+    "archivero": 3,
+    "fila": 7,
+    "seccion": "G",
+    "descripcion": "Acta constitutiva de la empresa",
+    "fecha": "2023-01-05 08:00"
+  },
+  "Permiso-Municipal": {
+    "archivero": 3,
+    "fila": 5,
+    "seccion": "D",
+    "descripcion": "Permiso de operación municipal vigente",
+    "fecha": "2024-01-02 10:00"
+  },
+  "Declaración-Anual-2023": {
+    "archivero": 4,
+    "fila": 2,
+    "seccion": "F",
+    "descripcion": "Declaración anual SAT 2023",
+    "fecha": "2024-03-31 23:00"
+  },
+  "Inventario-ENE-2024": {
+    "archivero": 5,
+    "fila": 4,
+    "seccion": "C",
+    "descripcion": "Inventario físico enero 2024",
+    "fecha": "2024-01-31 16:00"
+  },
+  "NuevoArchivo": {
+    "archivero": 5,
+    "fila": 7,
+    "seccion": "A",
+    "descripcion": "",
+    "fecha": "2026-05-18 20:55"
+  }
+}
