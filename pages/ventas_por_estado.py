@@ -98,6 +98,35 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True)
 
+# Top 10 estados con mayor venta
+st.subheader("Top 10 estados con más ventas")
+
+bar_data = sales_by_state.head(10).sort_values("Ventas", ascending=True).copy()
+bar_data["Ventas_Formateado"] = bar_data["Ventas"].map(lambda x: f"${x:,.0f}")
+
+fig_bar = px.bar(
+    bar_data,
+    x="Ventas",
+    y="State",
+    orientation="h",
+    color="Ventas",
+    color_continuous_scale="Viridis",
+    text=bar_data["Ventas_Formateado"],
+    title="Los 10 estados con mayor volumen de ventas",
+)
+
+fig_bar.update_traces(textposition="outside", cliponaxis=False)
+fig_bar.update_layout(
+    template="plotly_white",
+    height=500,
+    margin=dict(l=10, r=20, t=40, b=10),
+    xaxis_title="Ventas",
+    yaxis_title="Estado",
+    coloraxis_showscale=False,
+)
+
+st.plotly_chart(fig_bar, use_container_width=True)
+
 # Tabla de resumen
 st.subheader("Resumen por estado")
 st.dataframe(
