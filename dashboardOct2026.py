@@ -144,6 +144,7 @@ with tab_mapa:
     sales_by_state['State_Code'] = sales_by_state['State'].map(state_abbreviations)
     sales_by_state = sales_by_state.dropna(subset=['State_Code']).sort_values('Ventas', ascending=False)
 
+    # KPIs del mapa
     col1, col2, col3 = st.columns(3)
     with col1:
         st.metric('Ventas totales', f"${sales_by_state['Ventas'].sum():,.0f}")
@@ -152,6 +153,34 @@ with tab_mapa:
     with col3:
         st.metric('Máximo valor', f"${sales_by_state['Ventas'].max():,.0f}")
 
+    # Top 10 estados con más ventas (gráfico de barras)
+    st.subheader("Top 10 estados con más ventas")
+    top_states = sales_by_state.head(10).sort_values('Ventas', ascending=True).copy()
+    top_states['Ventas_formateadas'] = top_states['Ventas'].map(lambda x: f"${x:,.0f}")
+
+    fig_top_states = px.bar(
+        top_states,
+        x='Ventas',
+        y='State',
+        orientation='h',
+        color='Ventas',
+        color_continuous_scale='Viridis',
+        text='Ventas_formateadas',
+        title='Los 10 estados con mayor volumen de ventas',
+        labels={'Ventas': 'Ventas', 'State': 'Estado'}
+    )
+    fig_top_states.update_traces(textposition='outside', cliponaxis=False)
+    fig_top_states.update_layout(
+        template='plotly_white',
+        height=500,
+        margin=dict(l=10, r=20, t=40, b=10),
+        xaxis_title='Ventas',
+        yaxis_title='Estado',
+        coloraxis_showscale=False,
+    )
+    st.plotly_chart(fig_top_states, width='stretch')
+
+    # Mapa de ventas por estado
     fig_map = px.choropleth(
         sales_by_state,
         locations='State_Code',
