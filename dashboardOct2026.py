@@ -80,7 +80,7 @@ with col_left:
         color='Profit',
         color_continuous_scale=px.colors.sequential.Viridis
     )
-    st.plotly_chart(fig_state, use_container_width=True)
+    st.plotly_chart(fig_state, width='stretch')
 
 with col_right:
     st.subheader("Relación Descuento vs. Beneficios")
@@ -93,7 +93,7 @@ with col_right:
         title="Impacto del Descuento en la Ganancia"
     )
     fig_scatter.add_hline(y=0, line_dash="dash", line_color="red")
-    st.plotly_chart(fig_scatter, use_container_width=True)
+    st.plotly_chart(fig_scatter, width='stretch')
 
 # --- DETALLE DE SUB-CATEGORÍAS AFECTADAS ---
 st.subheader("Análisis de Desempeño por Sub-Categoría")
@@ -109,6 +109,6 @@ def color_negative_red(val):
     return f'color: {color}'
 
 st.dataframe(
-    sub_analysis.style.applymap(color_negative_red, subset=['Profit']),
-    use_container_width=True
+    sub_analysis.style.map(color_negative_red, subset=['Profit']),
+    width='stretch'
 )
