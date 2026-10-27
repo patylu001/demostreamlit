@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import numpy as np # Added for log transformation
+import numpy as np  # Added for log transformation
 
 st.set_page_config(layout='wide')
 
@@ -9,7 +9,7 @@ st.title('Sales Dashboard')
 
 # Assuming df is already loaded in the Colab environment
 # To make this standalone, you might need to load the data here:
-file_path="datos/SalidaVentas.xlsx"
+file_path = "datos/SalidaVentas.xlsx"
 df = pd.read_excel(file_path)
 
 # --- Data Cleaning and Preparation (if necessary, for the dashboard context) ---
@@ -64,18 +64,154 @@ if filtered_df.empty:
     st.warning('No hay datos disponibles para la selección actual de filtros.')
 else:
     # --- Key Performance Indicators (KPIs) ---
+    def sparkline_svg(values, color):
+        values = pd.Series(values).dropna()
+        if values.empty:
+            return ""
+
+        min_v = values.min()
+        max_v = values.max()
+        if max_v == min_v:
+            max_v = min_v + 1
+
+        points = []
+        for idx, val in enumerate(values):
+            x = (idx / max(len(values) - 1, 1)) * 100
+            y = 100 - ((val - min_v) / (max_v - min_v)) * 64 - 18
+            points.append(f"{x:.2f},{y:.2f}")
+
+        polyline = " ".join(points)
+        return f'''
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:52px; display:block;">
+            <polyline points="{polyline}" fill="none" stroke="{color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></polyline>
+        </svg>
+        '''
+
+    def pct_change(current, previous):
+        if pd.isna(previous) or previous == 0:
+            return 0.0 if current == 0 else 100.0
+        return ((current - previous) / abs(previous)) * 100
+
+    def render_kpi_card(title, value, delta, series, color):
+        delta_class = 'positive' if delta >= 0 else 'negative'
+        delta_text = f"{delta:+.1f}%"
+
+        st.markdown(
+            f'''
+            <style>
+                .kpi-grid {{
+                    display: grid;
+                    grid-template-columns: repeat(3, minmax(0, 1fr));
+                    gap: 1rem;
+                    margin: 1rem 0 1.5rem 0;
+                }}
+                .kpi-card {{
+                    background: rgba(255,255,255,0.7);
+                    border: 1px solid rgba(49, 51, 63, 0.12);
+                    border-radius: 0.9rem;
+                    padding: 1rem 1rem 0.8rem 1rem;
+                    min-height: 240px;
+                    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                }}
+                .kpi-header {{
+                    font-size: 0.75rem;
+                    color: rgba(49, 51, 63, 0.65);
+                    margin-bottom: 0.25rem;
+                }}
+                .kpi-title {{
+                    font-size: 1.05rem;
+                    font-weight: 700;
+                    color: #1f2937;
+                    margin: 0.15rem 0 0.6rem 0;
+                }}
+                .kpi-value {{
+                    font-size: clamp(2.1rem, 3vw, 3.8rem);
+                    font-weight: 800;
+                    line-height: 0.95;
+                    letter-spacing: -0.05em;
+                    color: #111827;
+                    margin: 0 0 0.5rem 0;
+                }}
+                .kpi-sparkline {{
+                    width: 100%;
+                    height: 52px;
+                    margin-top: 0.35rem;
+                    margin-bottom: 0.2rem;
+                }}
+                .kpi-footer {{
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding-top: 0.7rem;
+                    border-top: 1px solid rgba(49,51,63,0.08);
+                    font-size: 0.8rem;
+                    color: rgba(49, 51, 63, 0.8);
+                }}
+                .kpi-delta {{
+                    font-weight: 700;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.25rem;
+                }}
+                .kpi-delta.positive {{ color: #2ea76a; }}
+                .kpi-delta.negative {{ color: #e75a4f; }}
+                @media (max-width: 980px) {{
+                    .kpi-grid {{ grid-template-columns: 1fr; }}
+                }}
+            </style>
+            ''',
+            unsafe_allow_html=True,
+        )
+
+        st.markdown(
+            f'''
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div>
+                        <div class="kpi-header">Month to date</div>
+                        <div class="kpi-title">{title}</div>
+                        <div class="kpi-value">{value}</div>
+                    </div>
+                    <div class="kpi-sparkline">{sparkline_svg(series, color)}</div>
+                    <div class="kpi-footer">
+                        <div>{'Stripe' if 'Ventas' in title or 'Ganancia' in title else 'Total'}</div>
+                        <div class="kpi-delta {delta_class}">{delta_text}</div>
+                    </div>
+                </div>
+            </div>
+            ''',
+            unsafe_allow_html=True,
+        )
+
     total_sales = filtered_df['Sales'].sum()
     total_profit = filtered_df['Profit'].sum()
     total_quantity = filtered_df['Quantity'].sum()
 
-    st.subheader('Indicadores Clave de Desempeño (KPIs)')
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric(label='Ventas Totales', value=f'${total_sales:,.2f}')
-    with col2:
-        st.metric(label='Ganancia Total', value=f'${total_profit:,.2f}')
-    with col3:
-        st.metric(label='Cantidad Total de Productos', value=f'{total_quantity:,}')
+    daily_sales = filtered_df.sort_values('Order Date').set_index('Order Date')['Sales'].resample('D').sum().fillna(0)
+    daily_profit = filtered_df.sort_values('Order Date').set_index('Order Date')['Profit'].resample('D').sum().fillna(0)
+    daily_quantity = filtered_df.sort_values('Order Date').set_index('Order Date')['Quantity'].resample('D').sum().fillna(0)
+
+    sales_series = daily_sales.tail(14).tolist()
+    profit_series = daily_profit.tail(14).tolist()
+    quantity_series = daily_quantity.tail(14).tolist()
+
+    sales_delta = pct_change(sales_series[-1], np.mean(sales_series[:-1]) if len(sales_series) > 1 else 0)
+    profit_delta = pct_change(profit_series[-1], np.mean(profit_series[:-1]) if len(profit_series) > 1 else 0)
+    quantity_delta = pct_change(quantity_series[-1], np.mean(quantity_series[:-1]) if len(quantity_series) > 1 else 0)
+
+    cards = [
+        ("Revenue", f'${total_sales:,.0f}', sales_delta, sales_series, '#5CC68A'),
+        ("Profit", f'${total_profit:,.0f}', profit_delta, profit_series, '#5CC68A'),
+        ("Units", f'{total_quantity:,.0f}', quantity_delta, quantity_series, '#5CC68A'),
+    ]
+
+    cols = st.columns(3)
+    for col, (title, value, delta, series, color) in zip(cols, cards):
+        with col:
+            render_kpi_card(title, value, delta, series, color)
 
     st.markdown('---')
 
@@ -88,7 +224,6 @@ else:
     st.plotly_chart(fig_time, use_container_width=True)
 
     st.markdown('---')
-
 
     # --- Sales by Region ---
     st.subheader('Ventas por Región')
@@ -131,20 +266,20 @@ else:
     sales_by_state['State_Code'] = sales_by_state['State'].map(state_abbreviations)
 
     # Apply logarithmic transformation for better color distribution
-    sales_by_state['Log_Sales'] = np.log1p(sales_by_state['Sales']) # log1p(x) computes log(1+x)
+    sales_by_state['Log_Sales'] = np.log1p(sales_by_state['Sales'])  # log1p(x) computes log(1+x)
 
     fig_state = px.choropleth(
         sales_by_state,
-        locations='State_Code', # Use the new 'State_Code' column for locations
+        locations='State_Code',  # Use the new 'State_Code' column for locations
         locationmode='USA-states',
-        color='Log_Sales', # Use the log-transformed column for color mapping
+        color='Log_Sales',  # Use the log-transformed column for color mapping
         scope='usa',
-        color_continuous_scale='Plasma', # Changed color scale to 'Plasma' for better contrast
+        color_continuous_scale='Plasma',  # Changed color scale to 'Plasma' for better contrast
         title='Ventas Totales por Estado en USA (Escala Logarítmica)',
         labels={'Log_Sales': 'Log de Ventas Totales', 'State': 'Estado'},
-        hover_name='State', # Display original state name on hover
-        hover_data={'Sales': ':.2f', 'Log_Sales': False} # Display original sales value on hover, hide log_sales
+        hover_name='State',  # Display original state name on hover
+        hover_data={'Sales': ':.2f', 'Log_Sales': False}  # Display original sales value on hover, hide log_sales
     )
-    fig_state.update_layout(geo_scope='usa') # Ensures the map is centered on USA
+    fig_state.update_layout(geo_scope='usa')  # Ensures the map is centered on USA
     st.plotly_chart(fig_state, use_container_width=True)
     st.markdown('---')
