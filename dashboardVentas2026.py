@@ -101,54 +101,67 @@ else:
             <style>
                 .kpi-grid {{
                     display: grid;
-                    grid-template-columns: repeat(3, minmax(0, 1fr));
-                    gap: 1rem;
+                    grid-template-columns: repeat(3, minmax(250px, 1fr));
+                    gap: 1.2rem;
+                    width: 100%;
                     margin: 1rem 0 1.5rem 0;
+                    align-items: stretch;
                 }}
                 .kpi-card {{
                     background: rgba(255,255,255,0.7);
                     border: 1px solid rgba(49, 51, 63, 0.12);
-                    border-radius: 0.9rem;
-                    padding: 1rem 1rem 0.8rem 1rem;
-                    min-height: 240px;
+                    border-radius: 0.95rem;
+                    padding: 1rem 1rem 0.9rem 1rem;
+                    min-height: 330px;
+                    max-width: 360px;
+                    width: 100%;
                     box-shadow: 0 1px 2px rgba(0,0,0,0.04);
                     display: flex;
                     flex-direction: column;
                     justify-content: space-between;
+                    overflow: visible;
                 }}
                 .kpi-header {{
-                    font-size: 0.75rem;
-                    color: rgba(49, 51, 63, 0.65);
+                    font-size: 0.8rem;
+                    color: rgba(49, 51, 63, 0.7);
+                    line-height: 1.2;
                     margin-bottom: 0.25rem;
                 }}
                 .kpi-title {{
-                    font-size: 1.05rem;
+                    font-size: 1.1rem;
                     font-weight: 700;
                     color: #1f2937;
-                    margin: 0.15rem 0 0.6rem 0;
+                    margin: 0.2rem 0 0.5rem 0;
+                    line-height: 1.1;
                 }}
                 .kpi-value {{
-                    font-size: clamp(2.1rem, 3vw, 3.8rem);
+                    font-size: clamp(2.5rem, 2vw, 4.5rem);
                     font-weight: 800;
-                    line-height: 0.95;
+                    line-height: 0.9;
                     letter-spacing: -0.05em;
                     color: #111827;
-                    margin: 0 0 0.5rem 0;
+                    margin: 0.1rem 0 0.4rem 0;
+                    display: block;
+                    white-space: normal;
                 }}
                 .kpi-sparkline {{
                     width: 100%;
                     height: 52px;
-                    margin-top: 0.35rem;
-                    margin-bottom: 0.2rem;
+                    margin-top: 0.45rem;
+                    margin-bottom: 0.15rem;
+                    display: flex;
+                    align-items: flex-end;
                 }}
                 .kpi-footer {{
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
+                    margin-top: auto;
                     padding-top: 0.7rem;
                     border-top: 1px solid rgba(49,51,63,0.08);
-                    font-size: 0.8rem;
+                    font-size: 0.82rem;
                     color: rgba(49, 51, 63, 0.8);
+                    min-height: 28px;
                 }}
                 .kpi-delta {{
                     font-weight: 700;
@@ -158,8 +171,9 @@ else:
                 }}
                 .kpi-delta.positive {{ color: #2ea76a; }}
                 .kpi-delta.negative {{ color: #e75a4f; }}
-                @media (max-width: 980px) {{
+                @media (max-width: 1000px) {{
                     .kpi-grid {{ grid-template-columns: 1fr; }}
+                    .kpi-card {{ max-width: 100%; }}
                 }}
             </style>
             ''',
@@ -168,18 +182,16 @@ else:
 
         st.markdown(
             f'''
-            <div class="kpi-grid">
-                <div class="kpi-card">
-                    <div>
-                        <div class="kpi-header">Month to date</div>
-                        <div class="kpi-title">{title}</div>
-                        <div class="kpi-value">{value}</div>
-                    </div>
-                    <div class="kpi-sparkline">{sparkline_svg(series, color)}</div>
-                    <div class="kpi-footer">
-                        <div>{'Stripe' if 'Ventas' in title or 'Ganancia' in title else 'Total'}</div>
-                        <div class="kpi-delta {delta_class}">{delta_text}</div>
-                    </div>
+            <div class="kpi-card">
+                <div>
+                    <div class="kpi-header">Month to date</div>
+                    <div class="kpi-title">{title}</div>
+                    <div class="kpi-value">{value}</div>
+                </div>
+                <div class="kpi-sparkline">{sparkline_svg(series, color)}</div>
+                <div class="kpi-footer">
+                    <div>{'Stripe' if 'Ventas' in title or 'Ganancia' in title else 'Total'}</div>
+                    <div class="kpi-delta {delta_class}">{delta_text}</div>
                 </div>
             </div>
             ''',
