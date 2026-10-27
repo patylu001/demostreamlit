@@ -4,8 +4,8 @@ import plotly.express as px
 
 st.set_page_config(page_title="Ventas por Estado", page_icon="🗺️", layout="wide")
 
-st.title("🗺️ Mapa de Ventas por Estado")
-st.caption("Visualiza el volumen de ventas por estado usando una escala de color")
+st.title("Ventas por estado")
+st.caption("Visualiza el volumen de ventas por estado y el top 10 de estados con mayor venta")
 
 
 @st.cache_data
@@ -74,33 +74,8 @@ with col2:
 with col3:
     st.metric("Máximo valor", f"${sales_by_state['Ventas'].max():,.0f}")
 
-# Mapa choropleth
-fig = px.choropleth(
-    sales_by_state,
-    locations="State_Code",
-    locationmode="USA-states",
-    color="Ventas",
-    scope="usa",
-    color_continuous_scale="Plasma",
-    range_color=(sales_by_state["Ventas"].min(), sales_by_state["Ventas"].max()),
-    labels={"Ventas": "Ventas", "State": "Estado"},
-    hover_name="State",
-    hover_data={"State_Code": False, "Ventas": ":,.2f"},
-    title="Ventas Totales por Estado",
-)
-
-fig.update_layout(
-    template="plotly_white",
-    geo=dict(scope="usa", lakecolor="white"),
-    margin=dict(l=0, r=0, t=40, b=0),
-    height=650,
-)
-
-st.plotly_chart(fig, use_container_width=True)
-
-# Top 10 estados con mayor venta
+# Top 10 estados con mayor venta (se muestra arriba para que se vea de inmediato)
 st.subheader("Top 10 estados con más ventas")
-
 bar_data = sales_by_state.head(10).sort_values("Ventas", ascending=True).copy()
 bar_data["Ventas_Formateado"] = bar_data["Ventas"].map(lambda x: f"${x:,.0f}")
 
@@ -126,6 +101,31 @@ fig_bar.update_layout(
 )
 
 st.plotly_chart(fig_bar, use_container_width=True)
+
+# Mapa choropleth
+st.subheader("Mapa de ventas por estado")
+fig = px.choropleth(
+    sales_by_state,
+    locations="State_Code",
+    locationmode="USA-states",
+    color="Ventas",
+    scope="usa",
+    color_continuous_scale="Plasma",
+    range_color=(sales_by_state["Ventas"].min(), sales_by_state["Ventas"].max()),
+    labels={"Ventas": "Ventas", "State": "Estado"},
+    hover_name="State",
+    hover_data={"State_Code": False, "Ventas": ":,.2f"},
+    title="Ventas Totales por Estado",
+)
+
+fig.update_layout(
+    template="plotly_white",
+    geo=dict(scope="usa", lakecolor="white"),
+    margin=dict(l=0, r=0, t=40, b=0),
+    height=650,
+)
+
+st.plotly_chart(fig, use_container_width=True)
 
 # Tabla de resumen
 st.subheader("Resumen por estado")
